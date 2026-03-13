@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admiss Clarity Bot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style type="text/tailwindcss">
+      @layer components {
+        .btn-primary {
+          @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-200;
+        }
+
+        .btn-secondary {
+          @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md transition duration-200;
+        }
+
+        .card {
+          @apply bg-white rounded-lg shadow-md p-6;
+        }
+
+        .input-field {
+          @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500;
+        }
+
+        .nav-link {
+          @apply text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md transition duration-200;
+        }
+
+        .nav-link.active {
+          @apply text-blue-600 bg-blue-50;
+        }
+
+        /* Chatbot styles */
+        .chat-message {
+          @apply mb-4;
+        }
+
+        .chat-message.user {
+          @apply text-right;
+        }
+
+        .chat-message.bot {
+          @apply text-left;
+        }
+
+        .chat-bubble {
+          @apply inline-block px-4 py-2 rounded-lg max-w-xs;
+        }
+
+        .chat-bubble.user {
+          @apply bg-blue-600 text-white;
+        }
+
+        .chat-bubble.bot {
+          @apply bg-gray-200 text-gray-800;
+        }
+      }
+
+      @layer utilities {
+        @media (max-width: 768px) {
+          .sidebar {
+            @apply hidden;
+          }
+
+          .mobile-menu {
+            @apply block;
+          }
+        }
+      }
+    </style>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-gray-50">
+    <div id="app">
+        <!-- Header will be inserted here -->
+        <header id="header"></header>
+        
+        <!-- Main content -->
+        <main id="main-content" class="min-h-screen">
+            <!-- Page content will be loaded here -->
+        </main>
+        
+        <!-- Footer will be inserted here -->
+        <footer id="footer"></footer>
+    </div>
+    
+    <!-- Chatbot modal -->
+    <div id="chatbot-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] flex flex-col">
+                <div class="p-4 border-b">
+                    <h3 class="text-lg font-semibold">Admiss Clarity Bot</h3>
+                </div>
+                <div id="chat-messages" class="flex-1 p-4 overflow-y-auto max-h-96">
+                    <!-- Messages will be inserted here -->
+                </div>
+                <div class="p-4 border-t">
+                    <div class="flex space-x-2">
+                        <input type="text" id="chat-input" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ask me anything...">
+                        <button id="send-button" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/app.js"></script>
+    <script src="js/chatbot.js"></script>
+    <script src="js/api.js"></script>
+</body>
+</html>
