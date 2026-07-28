@@ -1,106 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admiss Clarity Bot</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style type="text/tailwindcss">
-      @layer components {
-        .btn-primary {
-          @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-200;
-        }
-
-        .btn-secondary {
-          @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md transition duration-200;
-        }
-
-        .card {
-          @apply bg-white rounded-lg shadow-md p-6;
-        }
-
-        .input-field {
-          @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500;
-        }
-
-        .nav-link {
-          @apply text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md transition duration-200;
-        }
-
-        .nav-link.active {
-          @apply text-blue-600 bg-blue-50;
-        }
-
-        /* Chatbot styles */
-        .chat-message {
-          @apply mb-4;
-        }
-
-        .chat-message.user {
-          @apply text-right;
-        }
-
-        .chat-message.bot {
-          @apply text-left;
-        }
-
-        .chat-bubble {
-          @apply inline-block px-4 py-2 rounded-lg max-w-xs;
-        }
-
-        .chat-bubble.user {
-          @apply bg-blue-600 text-white;
-        }
-
-        .chat-bubble.bot {
-          @apply bg-gray-200 text-gray-800;
-        }
-      }
-
-      @layer utilities {
-        @media (max-width: 768px) {
-          .sidebar {
-            @apply hidden;
-          }
-
-          .mobile-menu {
-            @apply block;
-          }
-        }
-      }
-    </style>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>Admiss Clarity Bot | Greenfield University</title>
+    <meta name="description"
+        content="Apply for admission at Greenfield University. Explore courses, fees, scholarships, and get instant answers from our AI-powered chatbot.">
+    <!-- Favicon -->
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <!-- Compiled Tailwind CSS -->
+    <link rel="stylesheet" href="dist/styles.css">
 </head>
+
 <body class="bg-gray-50">
     <div id="app">
-        <!-- Header will be inserted here -->
         <header id="header"></header>
-        
-        <!-- Main content -->
-        <main id="main-content" class="min-h-screen">
-            <!-- Page content will be loaded here -->
-        </main>
-        
-        <!-- Footer will be inserted here -->
+        <main id="main-content" class="min-h-screen"></main>
         <footer id="footer"></footer>
     </div>
-    
-    <!-- Chatbot modal -->
+
+    <!-- Chatbot Modal -->
     <div id="chatbot-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[80vh] flex flex-col">
-                <div class="p-4 border-b">
-                    <h3 class="text-lg font-semibold">Admiss Clarity Bot</h3>
+        <div class="flex items-end sm:items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col" style="max-height: 85vh;">
+                <div class="flex items-center justify-between p-4 border-b">
+                    <div class="flex items-center gap-3">
+                        <div
+                            class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold">
+                            💬</div>
+                        <div>
+                            <h3 class="text-sm font-bold text-gray-900">Admiss Clarity Bot</h3>
+                            <span class="text-xs text-green-500 font-medium">● Online</span>
+                        </div>
+                    </div>
+                    <button onclick="toggleChatbot()"
+                        class="text-gray-400 hover:text-gray-600 text-xl leading-none transition">✕</button>
                 </div>
-                <div id="chat-messages" class="flex-1 p-4 overflow-y-auto max-h-96">
-                    <!-- Messages will be inserted here -->
-                </div>
+                <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-1"></div>
                 <div class="p-4 border-t">
                     <div class="flex space-x-2">
-                        <input type="text" id="chat-input" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ask me anything...">
-                        <button id="send-button" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" id="chat-input"
+                            class="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
+                            placeholder="Ask me anything...">
+                        <button id="send-button"
+                            class="px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                             </svg>
                         </button>
                     </div>
@@ -108,9 +61,11 @@
             </div>
         </div>
     </div>
-    
+
+    <!-- Load api.js before app.js and chatbot.js since they depend on it -->
+    <script src="js/api.js"></script>
     <script src="js/app.js"></script>
     <script src="js/chatbot.js"></script>
-    <script src="js/api.js"></script>
 </body>
+
 </html>
