@@ -42,7 +42,7 @@ function promptAdminPin(onSuccess) {
                 id="pin-input"
                 type="password"
                 placeholder="Enter PIN"
-                class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center tracking-widest text-lg mb-4"
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center tracking-widest mb-4"
                 maxlength="20"
                 autocomplete="off"
             >

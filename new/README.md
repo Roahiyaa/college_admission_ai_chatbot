@@ -4,7 +4,7 @@ An AI-powered university admission portal with a chatbot, online application for
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 - **Python 3.9+**
@@ -15,7 +15,7 @@ An AI-powered university admission portal with a chatbot, online application for
 ### 1. Install Python Dependencies
 
 ```bash
-cd c:\Users\roahi\OneDrive\Desktop\new
+cd c:\Users\roahi\OneDrive\Desktop\college_admission_ai_chatbot\new
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
