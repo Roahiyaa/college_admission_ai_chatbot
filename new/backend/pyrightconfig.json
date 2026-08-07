@@ -1,0 +1,19 @@
+{
+  "include": [
+    "."
+  ],
+  "extraPaths": [
+    ".",
+    "../"
+  ],
+  "pythonVersion": "3.11",
+  "pythonPlatform": "All",
+  "typeCheckingMode": "basic",
+  "reportMissingModuleSource": "none",
+  "reportMissingImports": "none",
+  "reportUnknownVariableType": "none",
+  "reportUnknownMemberType": "none",
+  "reportUnknownArgumentType": "none",
+  "venvPath": "..",
+  "venv": ".venv"
+}

@@ -1,9 +1,22 @@
 {
+  // ── CSS / Tailwind ──────────────────────────────────────────────────────────
+  // Disable the built-in CSS / SCSS / Less validators entirely so that
+  // @tailwind, @apply, @layer, @screen directives don't get flagged.
+  "css.validate": false,
+  "scss.validate": false,
+  "less.validate": false,
   "css.lint.unknownAtRules": "ignore",
   "scss.lint.unknownAtRules": "ignore",
   "css.lint.vendorPrefix": "ignore",
   "css.lint.propertyIgnoredDueToDisplay": "ignore",
-  "css.validate": false,
+
+  // Tell VS Code to treat *.css files as Tailwind CSS so IntelliSense works.
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+
+  // ── Tailwind IntelliSense ────────────────────────────────────────────────────
+  "tailwindCSS.experimental.configFile": "./tailwind.config.js",
   "tailwindCSS.includeLanguages": {
     "html": "html",
     "javascript": "javascript",
@@ -12,9 +25,10 @@
   "editor.quickSuggestions": {
     "strings": true
   },
-  "files.associations": {
-    "*.css": "tailwindcss"
-  },
+
+  // ── Python ──────────────────────────────────────────────────────────────────
+  // Add backend/ to extra paths so Pylance + Pyrefly can resolve
+  // `from models import ...` without the try/except trick.
   "python.analysis.extraPaths": [
     "${workspaceFolder}",
     "${workspaceFolder}/backend"
@@ -22,7 +36,21 @@
   "python.analysis.autoSearchPaths": true,
   "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
   "python.terminal.activateEnvironment": true,
+
+  // Suppress Pylance warnings that are too noisy for SQLAlchemy dynamic attrs.
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.reportMissingModuleSource": "none",
+  "python.analysis.reportUnknownVariableType": "none",
+  "python.analysis.reportUnknownMemberType": "none",
+
+  // ── Pyrefly ─────────────────────────────────────────────────────────────────
   "pyrefly.projectRoots": [
     "${workspaceFolder}/backend"
-  ]
+  ],
+
+  // ── Editor ──────────────────────────────────────────────────────────────────
+  "editor.formatOnSave": true,
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  }
 }

@@ -2,33 +2,34 @@
 let chatMessages = [];
 
 const localFallback = {
-    admission: "Admissions for Fall 2026 are open from March 15 to June 30. Apply online through our Application Process section.",
-    courses: "We offer programs in Engineering, Business Administration, Computer Science, Medicine, Law, and Liberal Arts.",
-    fees: "Tuition varies by program. Engineering: $12,000/year, Business: $10,500/year, Medicine: $18,000/year. Scholarships available!",
-    scholarship: "Merit scholarships cover up to 50% of tuition for students with a GPA above 3.7.",
-    deadline: "Application deadline for Fall 2026 is June 30. Early decision deadline is April 15.",
-    documents: "Required: transcripts, standardized test scores, personal statement, two recommendation letters, and proof of identity.",
-    contact: "Reach us at admissions@greenfield.edu or +1 (555) 123-4567. Office hours: Mon-Fri, 9 AM - 5 PM.",
-    hostel: "On-campus housing is available for all admitted students. Rooms range from $3,000–$5,000/semester.",
-    placement: "Our placement cell has partnerships with 200+ companies. 95% of graduates placed within 6 months.",
-    eligibility: "Generally, 10+2 or equivalent with minimum 50% aggregate is required. Check specific program pages for details.",
-    transfer: "Transfer students are welcome. You need official transcripts and a minimum GPA of 2.5.",
-    international: "International students need TOEFL/IELTS scores and a valid passport. We provide student visa assistance.",
+    admission: "AEEE 2026 applications are open! Apply via AEEE or JEE Main scores. Visit amrita.edu or our Apply Now page.",
+    courses: "Amrita Coimbatore offers B.Tech in CSE, AI & ML, Cybersecurity, ECE, Mechanical, Civil; plus M.Tech, MBA, and MBBS.",
+    fees: "Tuition: B.Tech CSE ₹2,10,000/yr | ECE/Mech ₹1,85,000/yr | MBA ₹2,50,000/yr | MBBS ₹12,00,000/yr. Vidyamritam Scholarship covers up to 100%!",
+    scholarship: "Amrita's Vidyamritam Scholarship offers up to 100% fee waiver based on AEEE or JEE Main rank. Need-based aid also available.",
+    deadline: "AEEE Phase 1: Jan–Feb 2026, Phase 2: April 2026. JEE Main-based counselling: June–July 2026. Classes begin August 2026.",
+    documents: "Required: 10th & 12th marksheets, AEEE/JEE rank card, transfer certificate, character certificate, Aadhaar, and passport photos.",
+    contact: "Reach us at admissions@amrita.edu or 0422-2685000. Office hours: Mon–Sat, 9 AM – 5 PM.",
+    hostel: "Fully residential AC and non-AC hostels available. Fees: ₹80,000–₹1,20,000/year including mess. Contact housing@cb.amrita.edu.",
+    placement: "5000+ annual placement offers, avg. package ₹7–8 LPA. Top recruiters: Amazon, Google, Microsoft, TCS, Infosys, Wipro.",
+    eligibility: "B.Tech: 10+2 with min. 60% in PCM + AEEE/JEE rank. MBBS: NEET qualified. MBA: CAT/MAT/XAT score required.",
+    transfer: "Lateral entry to B.Tech (3rd semester) available for diploma holders with min. 60% aggregate. Contact admissions office.",
+    international: "NRI/OCI seats available. Need valid passport, transcripts, TOEFL (min 80) or IELTS (min 6.5). Contact nri.admissions@amrita.edu.",
+    aeee: "AEEE (Amrita Engineering Entrance Exam) is Amrita's own entrance test for B.Tech admissions. JEE Main scores are also accepted.",
 };
 
 const suggestedQuestions = [
-    "What courses are available?",
-    "What is the fee structure?",
-    "How do I apply for admission?",
-    "What scholarships are available?",
-    "What is the application deadline?",
+    "What B.Tech courses are available?",
+    "What is the fee structure in INR?",
+    "How do I apply through AEEE?",
+    "What is the Vidyamritam Scholarship?",
+    "What is the AEEE 2026 deadline?",
     "What documents are required?",
     "Is hostel facility available?",
     "What are the placement statistics?",
-    "Am I eligible to apply?",
-    "Can I transfer from another university?",
-    "How to apply as an international student?",
-    "How can I contact the admissions office?",
+    "What is the eligibility for B.Tech?",
+    "Is lateral entry available?",
+    "How to apply as NRI/international student?",
+    "How can I contact admissions office?",
 ];
 
 function toggleChatbot() {
@@ -37,7 +38,7 @@ function toggleChatbot() {
 
     if (!modal.classList.contains('hidden')) {
         if (chatMessages.length === 0) {
-            addMessage("Hello! I'm the Admiss Clarity Bot. How can I help you with your admission queries?", 'bot');
+            addMessage("Hello! I'm the Amrita AI Assistant. How can I help you with admissions at Amrita Vishwa Vidyapeetham, Coimbatore? Ask me about AEEE, courses, fees, scholarships, or hostel! 🎓", 'bot');
             showSuggestions();
         }
         document.getElementById('chat-input').focus();
@@ -96,7 +97,7 @@ function getLocalFallbackResponse(input) {
     for (const [key, value] of Object.entries(localFallback)) {
         if (lower.includes(key)) return value;
     }
-    return "Thank you for your question! For specific inquiries please contact admissions@greenfield.edu, or try asking about admissions, courses, fees, scholarships, deadlines, or required documents.";
+    return "Thank you for your question! For specific inquiries contact admissions@amrita.edu or call 0422-2685000. You can also ask me about AEEE, courses, fees, Vidyamritam Scholarship, hostel, or placement!";
 }
 
 function showTypingIndicator() {

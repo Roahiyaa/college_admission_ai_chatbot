@@ -1,0 +1,19 @@
+# Pyrefly configuration for the backend package
+# https://github.com/facebook/pyrefly
+
+[pyrefly]
+# Point at the virtualenv so Pyrefly resolves installed packages
+python_interpreter = "../.venv/Scripts/python.exe"
+
+# Search paths — backend dir is the root; parent gives access to venv stubs
+search_path = [
+  ".",
+  "../"
+]
+
+# Suppress rules that are too noisy for this project
+[errors]
+# SQLAlchemy uses a lot of dynamic members that static analysis can't resolve
+missing_attribute = false
+bad_argument_type = false
+missing_return = false

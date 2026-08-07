@@ -1,66 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@400;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+/* ── Base ───────────────────────────────────────────────────────────────────── */
+@layer base {
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #FAFAFA;
+        color: #1A1A2E;
+    }
 
-body {
-    font-family: 'Inter', sans-serif;
+    h1, h2, h3 {
+        font-family: 'Playfair Display', Georgia, serif;
+    }
 }
 
-/* ── Custom Utility Classes ─────────────────────────────────────────── */
+/* ── Custom Utility Classes ─────────────────────────────────────────────────── */
 @layer components {
+
+    /* Buttons */
     .btn-primary {
-        @apply bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-2.5 px-5 rounded-xl transition duration-200 disabled:opacity-60 disabled:cursor-not-allowed;
+        @apply bg-crimson-600 hover:bg-crimson-700 active:bg-crimson-800 text-white font-semibold py-2.5 px-6 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed;
     }
 
     .btn-secondary {
-        @apply bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-800 font-semibold py-2.5 px-5 rounded-xl transition duration-200;
+        @apply bg-white border border-crimson-200 hover:bg-crimson-50 active:bg-crimson-100 text-crimson-700 font-semibold py-2.5 px-6 rounded-xl transition-all duration-200;
     }
 
+    .btn-gold {
+        @apply bg-gold-500 hover:bg-gold-600 active:bg-gold-700 text-white font-bold py-2.5 px-6 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md;
+    }
+
+    /* Cards */
     .card {
-        @apply bg-white rounded-2xl shadow-md p-6 border border-gray-100;
+        @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6 transition-all duration-300;
     }
 
+    .card-hover {
+        @apply card hover:shadow-xl hover:-translate-y-1;
+    }
+
+    /* Inputs */
     .input-field {
-        @apply w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition placeholder-gray-400;
+        @apply w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-crimson-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 bg-white;
     }
 
+    /* Nav links */
     .nav-link {
-        @apply text-gray-600 hover:text-blue-600 px-3 py-2 rounded-lg text-sm font-medium transition duration-200 hover:bg-blue-50;
+        @apply text-gray-600 hover:text-crimson-600 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-crimson-50;
     }
 
     .nav-link.active {
-        @apply text-blue-600 bg-blue-50 font-semibold;
+        @apply text-crimson-700 bg-crimson-50 font-semibold;
+    }
+
+    /* Badges */
+    .badge {
+        @apply inline-block text-xs font-semibold px-3 py-1 rounded-full;
+    }
+
+    .badge-crimson {
+        @apply badge bg-crimson-100 text-crimson-700;
+    }
+
+    .badge-gold {
+        @apply badge bg-gold-100 text-gold-700;
+    }
+
+    .badge-green {
+        @apply badge bg-emerald-100 text-emerald-700;
+    }
+
+    /* Section heading */
+    .section-title {
+        @apply text-3xl md:text-4xl font-bold text-amrita-navy;
+        font-family: 'Playfair Display', Georgia, serif;
+    }
+
+    .section-subtitle {
+        @apply text-gray-500 text-base md:text-lg mt-3;
     }
 }
 
-/* ── Chatbot Styles ──────────────────────────────────────────────────── */
-.chat-message {
-    @apply mb-3 flex;
+/* ── Chatbot Styles ──────────────────────────────────────────────────────────── */
+@layer components {
+    .chat-message {
+        @apply mb-3 flex;
+    }
+
+    .chat-message.user {
+        @apply justify-end;
+    }
+
+    .chat-message.bot {
+        @apply justify-start;
+    }
+
+    .chat-bubble {
+        @apply inline-block px-4 py-2.5 rounded-2xl max-w-xs text-sm leading-relaxed;
+    }
+
+    .chat-bubble.user {
+        @apply bg-crimson-600 text-white rounded-br-sm;
+    }
+
+    .chat-bubble.bot {
+        @apply bg-gray-100 text-gray-800 rounded-bl-sm;
+    }
 }
 
-.chat-message.user {
-    @apply justify-end;
-}
-
-.chat-message.bot {
-    @apply justify-start;
-}
-
-.chat-bubble {
-    @apply inline-block px-4 py-2.5 rounded-2xl max-w-xs text-sm leading-relaxed;
-}
-
-.chat-bubble.user {
-    @apply bg-blue-600 text-white rounded-br-sm;
-}
-
-.chat-bubble.bot {
-    @apply bg-gray-100 text-gray-800 rounded-bl-sm;
-}
-
-/* ── Typing Indicator ────────────────────────────────────────────────── */
+/* ── Typing Indicator ─────────────────────────────────────────────────────────── */
 .typing-dots {
     display: inline-flex;
     gap: 3px;
@@ -73,12 +124,89 @@ body {
     50% { opacity: 1; }
 }
 
-/* ── Responsive Sidebar ──────────────────────────────────────────────── */
-@media (max-width: 768px) {
-    .sidebar {
-        @apply hidden;
-    }
-    .mobile-menu {
-        @apply block;
+/* ── Hero gradient ────────────────────────────────────────────────────────────── */
+.hero-gradient {
+    background: linear-gradient(135deg, #7A1A1A 0%, #C0392B 40%, #9B2335 70%, #D4AF37 100%);
+}
+
+.hero-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ── Stat counter cards ───────────────────────────────────────────────────────── */
+.stat-card {
+    @apply text-center p-6 rounded-2xl;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* ── Gallery image ────────────────────────────────────────────────────────────── */
+.gallery-img {
+    @apply rounded-2xl overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 cursor-pointer;
+}
+
+/* ── Testimonial card ─────────────────────────────────────────────────────────── */
+.testimonial-card {
+    @apply card border-l-4 border-crimson-500 relative;
+}
+
+.testimonial-card::before {
+    content: '"';
+    position: absolute;
+    top: -8px;
+    left: 20px;
+    font-size: 80px;
+    line-height: 1;
+    color: #C0392B;
+    opacity: 0.15;
+    font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* ── Timeline ─────────────────────────────────────────────────────────────────── */
+.timeline-item {
+    @apply relative pl-8 pb-6 border-l-2 border-crimson-200 last:border-transparent last:pb-0;
+}
+
+.timeline-dot {
+    @apply absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-crimson-600 border-2 border-white shadow;
+}
+
+/* ── Scrollbar ────────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+    background: #C0392B;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #9B2335;
+}
+
+/* ── Scroll reveal animation ──────────────────────────────────────────────────── */
+.reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ── Responsive Sidebar ───────────────────────────────────────────────────────── */
+@layer utilities {
+    @media (max-width: 768px) {
+        .sidebar {
+            @apply hidden;
+        }
+        .mobile-menu {
+            @apply block;
+        }
     }
 }
