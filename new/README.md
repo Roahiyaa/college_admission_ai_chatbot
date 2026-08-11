@@ -1,123 +1,139 @@
-# 🎓 Admiss Clarity Bot — Greenfield University
+# College Admission AI Chatbot
 
-An AI-powered university admission portal with a chatbot, online application form, fee structure, and admin dashboard.
-
----
-
-##  Getting Started
-
-### Prerequisites
-- **Python 3.9+**
-- **Node.js 18+** (for Tailwind CSS build)
+A web application that helps students apply to Amrita Vishwa Vidyapeetham (Coimbatore). Students can browse courses, check fees, submit an application, track their application status, and chat with an AI assistant that answers admission-related questions.
 
 ---
 
-### 1. Install Python Dependencies
+## What it does
+
+**Course Browser** — View all available programmes like B.Tech, MBBS, MBA, and M.Tech with details on duration, fees, and curriculum.
+
+**Fee Information** — See a clear breakdown of tuition fees, hostel charges, and available scholarships for each programme.
+
+**Online Application** — Fill out and submit your admission form directly from the website. The system prevents duplicate submissions.
+
+**Application Tracker** — Check your application status anytime using your email address or application ID.
+
+**AI Chatbot** — Ask anything about admissions. The chatbot is powered by Google Gemini AI and knows the latest course and fee data. If no API key is set, it falls back to smart keyword-based responses so it always works.
+
+**Admin Dashboard** — A PIN-protected panel where staff can view all submitted applications and mark them as Approved or Rejected. Supports CSV export.
+
+---
+
+## How to run it
+
+### Requirements
+
+- Python 3.9 or above
+- Node.js 18 or above (only needed if you want to change the CSS)
+
+### Step 1 - Clone the repository
 
 ```bash
-cd c:\Users\roahi\OneDrive\Desktop\college_admission_ai_chatbot\new
-python -m venv .venv
-.venv\Scripts\activate
+git clone https://github.com/Roahiyaa/college_admission_ai_chatbot.git
+cd college_admission_ai_chatbot/new
+```
+
+### Step 2 - Install Python dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
----
+### Step 3 - Enable the AI chatbot (optional)
 
-### 2. Build Tailwind CSS
+The chatbot works out of the box without any setup. If you want the full Gemini AI experience, get a free API key from https://aistudio.google.com/apikey and set it before starting the server.
 
-Run this once to compile CSS, or use `watch:css` during development:
-
-```bash
-npm install
-npm run build:css
+On Windows (PowerShell):
+```powershell
+$env:GEMINI_API_KEY = "your-key-here"
 ```
 
-**For development (auto-rebuild on CSS changes):**
+On Mac or Linux:
 ```bash
-npm run watch:css
+export GEMINI_API_KEY="your-key-here"
 ```
 
----
-
-### 3. Run the Flask Backend
+### Step 4 - Start the server
 
 ```bash
 cd backend
 python app.py
 ```
 
-The app will be available at **http://localhost:5000/**
-
-Flask serves the frontend automatically — no separate web server needed.
+Open your browser and go to http://localhost:5000
 
 ---
 
-## 📁 Project Structure
+## Admin access
+
+The admin dashboard is protected by a PIN. The default PIN is:
 
 ```
-├── backend/
-│   ├── app.py          ← Flask API + static file server
-│   └── models.py       ← SQLAlchemy database models
-├── static/
-│   ├── index.html      ← Main HTML shell
-│   ├── css/
-│   │   └── styles.css  ← Tailwind source (edit this)
-│   ├── js/
-│   │   ├── api.js      ← All backend API calls
-│   │   ├── app.js      ← Page logic & UI rendering
-│   │   └── chatbot.js  ← Chatbot functionality
-│   └── dist/
-│       └── styles.css  ← Compiled Tailwind (auto-generated)
-├── package.json
-├── requirements.txt
-└── tailwind.config.js
+admin123
 ```
 
----
+To change it, open `static/js/app.js` and update line 42:
 
-## 🔑 Admin Dashboard
-
-The admin dashboard is protected by a PIN.
-
-> **Default PIN:** `admin123`
-
-To change the PIN, edit line 19 in [static/js/app.js](static/js/app.js):
 ```js
 const ADMIN_PIN = 'your-new-pin';
 ```
 
 ---
 
-## 🌐 API Endpoints
+## Rebuilding the CSS (only if you edit styles)
+
+```bash
+npm install
+npm run build:css
+```
+
+To automatically rebuild while editing:
+```bash
+npm run watch:css
+```
+
+---
+
+## API reference
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/api/admissions` | Submit an application |
-| `GET` | `/api/admissions` | List all applications (admin) |
-| `PATCH` | `/api/admissions/<id>/status` | Update application status |
-| `GET` | `/api/admissions/track?email=` | Track application by email |
-| `GET` | `/api/admissions/track?id=` | Track application by ID |
-| `GET` | `/api/courses` | List all courses |
-| `GET` | `/api/fees` | List fee structure |
-| `POST` | `/api/chat` | Chatbot message |
+| POST | /api/admissions | Submit a new application |
+| GET | /api/admissions | List all applications (admin) |
+| PATCH | /api/admissions/id/status | Approve or reject an application |
+| GET | /api/admissions/track?email= | Look up application by email |
+| GET | /api/admissions/track?id= | Look up application by ID |
+| GET | /api/courses | Get all courses |
+| GET | /api/fees | Get fee structures |
+| POST | /api/chat | Send a message to the chatbot |
 
 ---
 
-## ✨ Features
+## Project structure
 
-- 🏠 **Home** — Stats, feature cards, hero section
-- 🎓 **Courses** — Dynamic course grid from database
-- 💰 **Fees** — Fee table with scholarship info
-- 📅 **Dates** — Fall 2026 & Spring 2027 deadlines
-- 🔍 **Track Application** — Check status by email or ID
-- 📋 **Apply** — Online admission form with validation
-- 🔐 **Admin Dashboard** — PIN-protected, paginated, with CSV export
-- 💬 **Chatbot** — Keyword-based with local fallback
+```
+new/
+  backend/
+    app.py        - All API routes and the AI chatbot logic
+    models.py     - Database models for admissions, courses, and fees
+  static/
+    index.html    - The main page shell
+    js/
+      app.js      - Page routing and UI rendering
+      chatbot.js  - Chatbot widget
+      api.js      - Functions for calling the backend API
+    css/
+      styles.css  - Tailwind source styles
+  requirements.txt
+  package.json
+```
 
 ---
 
-## 🛠️ Tech Stack
+## Tech stack
 
-- **Frontend:** HTML, Vanilla JS, Tailwind CSS
-- **Backend:** Python, Flask, Flask-CORS, Flask-SQLAlchemy
-- **Database:** SQLite (auto-created on first run)
+- Frontend: HTML, Vanilla JavaScript, Tailwind CSS
+- Backend: Python, Flask, Flask-SQLAlchemy, Flask-CORS
+- Database: SQLite (created automatically on first run)
+- AI: Google Gemini 1.5 Flash with keyword fallback

@@ -1,3 +1,7 @@
 flask
 flask-cors
 flask-sqlalchemy
+google-generativeai
+flask-limiter
+python-dotenv
+marshmallow

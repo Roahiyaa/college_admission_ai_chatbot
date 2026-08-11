@@ -40,10 +40,16 @@
                             <span class="text-xs text-green-500 font-medium">● Online</span>
                         </div>
                     </div>
-                    <button onclick="toggleChatbot()"
-                        class="text-gray-400 hover:text-gray-600 text-xl leading-none transition">✕</button>
+                    <div class="flex items-center gap-2">
+                        <button id="chat-clear-btn" title="Clear chat"
+                            class="text-gray-400 hover:text-red-400 text-sm transition px-2 py-1 rounded-lg hover:bg-gray-100">🗑 Clear</button>
+                        <button onclick="toggleChatbot()" title="Close"
+                            class="text-gray-400 hover:text-gray-600 text-xl leading-none transition">✕</button>
+                    </div>
                 </div>
                 <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-1"></div>
+                <!-- Suggestions chip bar -->
+                <div id="chat-suggestions" class="suggestions-bar"></div>
                 <div class="p-4 border-t">
                     <div class="flex space-x-2">
                         <input type="text" id="chat-input"

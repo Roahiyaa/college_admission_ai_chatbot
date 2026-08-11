@@ -21,7 +21,8 @@ async function submitAdmission(data) {
 
 async function getAdmissions() {
     try {
-        const response = await fetch(`${API_BASE_URL}/admissions`);
+        const response = await fetch(`${API_BASE_URL}/admissions`, { credentials: 'same-origin' });
+        if (response.status === 401) throw new Error('401 Unauthorised');
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return await response.json();
     } catch (error) {
@@ -35,8 +36,10 @@ async function updateAdmissionStatus(id, status) {
         const response = await fetch(`${API_BASE_URL}/admissions/${id}/status`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: JSON.stringify({ status }),
         });
+        if (response.status === 401) throw new Error('401 Unauthorised');
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return await response.json();
     } catch (error) {

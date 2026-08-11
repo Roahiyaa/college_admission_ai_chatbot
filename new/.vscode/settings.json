@@ -10,11 +10,6 @@
   "css.lint.vendorPrefix": "ignore",
   "css.lint.propertyIgnoredDueToDisplay": "ignore",
 
-  // Tell VS Code to treat *.css files as Tailwind CSS so IntelliSense works.
-  "files.associations": {
-    "*.css": "tailwindcss"
-  },
-
   // ── Tailwind IntelliSense ────────────────────────────────────────────────────
   "tailwindCSS.experimental.configFile": "./tailwind.config.js",
   "tailwindCSS.includeLanguages": {

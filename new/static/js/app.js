@@ -38,13 +38,38 @@ function applyReveal() {
     }, 50);
 }
 
-// ─── Admin PIN ─────────────────────────────────────────────────────────────────
-const ADMIN_PIN = 'admin123';
+// ─── Admin Auth (backend session) ────────────────────────────────────────────────────
+// adminUnlocked is a local optimistic flag; the backend session is authoritative.
 let adminUnlocked = false;
 
+async function adminLogout() {
+    try {
+        await fetch('/api/admin/logout', { method: 'POST', credentials: 'same-origin' });
+    } catch (_) {}
+    adminUnlocked = false;
+    loadPage('home');
+    showToast('Logged out of admin panel.', 'info');
+}
+
 function promptAdminPin(onSuccess) {
+    // Check existing backend session first
     if (adminUnlocked) { onSuccess(); return; }
 
+    // Check with the server if session is still active
+    fetch('/api/admin/status', { credentials: 'same-origin' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.is_admin) {
+                adminUnlocked = true;
+                onSuccess();
+            } else {
+                _showAdminLoginDialog(onSuccess);
+            }
+        })
+        .catch(() => _showAdminLoginDialog(onSuccess));
+}
+
+function _showAdminLoginDialog(onSuccess) {
     const overlay = document.createElement('div');
     overlay.id = 'pin-overlay';
     overlay.className = 'fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] flex items-center justify-center';
@@ -52,20 +77,20 @@ function promptAdminPin(onSuccess) {
         <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm mx-4">
             <div class="text-center mb-6">
                 <div class="w-16 h-16 bg-crimson-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <span class="text-3xl">🔐</span>
+                    <span class="text-3xl">&#128274;</span>
                 </div>
                 <h2 class="text-xl font-bold text-gray-900" style="font-family:'Playfair Display',serif;">Admin Access</h2>
-                <p class="text-sm text-gray-500 mt-1">Enter the admin PIN to continue</p>
+                <p class="text-sm text-gray-500 mt-1">Enter the admin password to continue</p>
             </div>
             <input
                 id="pin-input"
                 type="password"
-                placeholder="Enter PIN"
+                placeholder="Enter password"
                 class="w-full px-4 py-3 border border-gray-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-crimson-500 focus:border-transparent text-center tracking-widest mb-4"
-                maxlength="20"
-                autocomplete="off"
+                maxlength="50"
+                autocomplete="current-password"
             >
-            <p id="pin-error" class="text-red-500 text-xs text-center mb-3 hidden">Incorrect PIN. Please try again.</p>
+            <p id="pin-error" class="text-red-500 text-xs text-center mb-3 hidden">Incorrect password. Please try again.</p>
             <div class="flex gap-3">
                 <button id="pin-cancel" class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition text-sm">Cancel</button>
                 <button id="pin-submit" class="flex-1 py-2.5 bg-crimson-600 hover:bg-crimson-700 text-white font-semibold rounded-xl transition text-sm">Unlock</button>
@@ -76,17 +101,41 @@ function promptAdminPin(onSuccess) {
 
     const pinInput = overlay.querySelector('#pin-input');
     const pinError = overlay.querySelector('#pin-error');
+    const submitBtn = overlay.querySelector('#pin-submit');
 
-    function checkPin() {
-        if (pinInput.value === ADMIN_PIN) {
-            adminUnlocked = true;
-            overlay.remove();
-            onSuccess();
-        } else {
+    async function checkPin() {
+        const password = pinInput.value;
+        if (!password) return;
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Verifying...';
+
+        try {
+            const response = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ password }),
+            });
+
+            if (response.ok) {
+                adminUnlocked = true;
+                overlay.remove();
+                onSuccess();
+            } else {
+                pinError.classList.remove('hidden');
+                pinInput.value = '';
+                pinInput.classList.add('border-red-400');
+                setTimeout(() => pinInput.classList.remove('border-red-400'), 800);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Unlock';
+                pinInput.focus();
+            }
+        } catch (_) {
+            pinError.textContent = 'Could not connect to the server.';
             pinError.classList.remove('hidden');
-            pinInput.value = '';
-            pinInput.classList.add('border-red-400');
-            setTimeout(() => pinInput.classList.remove('border-red-400'), 800);
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Unlock';
         }
     }
 
@@ -166,7 +215,7 @@ function loadHeader() {
                         <a href="#" data-page="application" class="nav-link">Apply</a>
                         <a href="#" data-page="admin" class="nav-link">Admin</a>
                         <button id="chatbot-toggle" class="ml-2 bg-crimson-600 hover:bg-crimson-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-200 shadow-sm">
-                            💬 Ask AI
+                            Ask AI
                         </button>
                     </nav>
                     <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition">
@@ -186,14 +235,14 @@ function loadHeader() {
                     <a href="#" data-page="application" class="block nav-link">Apply Now</a>
                     <a href="#" data-page="admin" class="block nav-link">Admin Dashboard</a>
                     <button id="chatbot-toggle-mobile" class="w-full mt-2 bg-crimson-600 hover:bg-crimson-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition duration-200">
-                        💬 Open AI Chatbot
+                        Open AI Chatbot
                     </button>
                 </div>
             </div>
         </div>
         <!-- NAAC Topbar -->
         <div class="bg-crimson-700 text-white text-xs py-1.5 px-4 text-center">
-            🏆 NAAC A++ Accredited &nbsp;|&nbsp; 🌏 NIRF Top 10 Engineering &nbsp;|&nbsp; ✨ AEEE 2026 Applications Open — <a href="#" data-page="application" class="underline font-semibold">Apply Now</a>
+            NAAC A++ Accredited &nbsp;|&nbsp; NIRF Top 10 Engineering &nbsp;|&nbsp; AEEE 2026 Applications Open — <a href="#" data-page="application" class="underline font-semibold">Apply Now</a>
         </div>
     `;
 
@@ -247,11 +296,11 @@ function loadFooter() {
                     <div>
                         <h3 class="text-sm font-semibold text-gray-300 uppercase tracking-wider mb-4">Contact Us</h3>
                         <ul class="space-y-3 text-gray-400 text-sm">
-                            <li class="flex items-start gap-2"><span>📧</span><span>admissions@amrita.edu</span></li>
-                            <li class="flex items-start gap-2"><span>📞</span><span>0422-2685000</span></li>
-                            <li class="flex items-start gap-2"><span>🕑</span><span>Mon–Sat, 9 AM – 5 PM</span></li>
-                            <li class="flex items-start gap-2"><span>📍</span><span>Amritanagar, Coimbatore – 641112, Tamil Nadu</span></li>
-                            <li class="flex items-start gap-2"><span>🌐</span><a href="https://www.amrita.edu" target="_blank" class="hover:text-white transition">www.amrita.edu</a></li>
+                            <li class="flex items-start gap-2"><span>Email:</span><span>admissions@amrita.edu</span></li>
+                            <li class="flex items-start gap-2"><span>Phone:</span><span>0422-2685000</span></li>
+                            <li class="flex items-start gap-2"><span>Hours:</span><span>Mon–Sat, 9 AM – 5 PM</span></li>
+                            <li class="flex items-start gap-2"><span>Address:</span><span>Amritanagar, Coimbatore – 641112, Tamil Nadu</span></li>
+                            <li class="flex items-start gap-2"><span>Web:</span><a href="https://www.amrita.edu" target="_blank" class="hover:text-white transition">www.amrita.edu</a></li>
                         </ul>
                     </div>
                 </div>
@@ -308,7 +357,7 @@ function loadHomePage(container) {
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         <div>
                             <span class="inline-block bg-white/20 backdrop-blur text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-6 tracking-wider uppercase">
-                                🎓 AEEE 2026 Applications Open
+                                AEEE 2026 Applications Open
                             </span>
                             <h1 class="text-4xl md:text-5xl xl:text-6xl font-bold mb-6 leading-tight" style="font-family:'Playfair Display',serif;">
                                 Welcome to<br><span class="text-gold-300">Amrita Vishwa</span><br>Vidyapeetham
@@ -321,7 +370,7 @@ function loadHomePage(container) {
                                     Apply Now →
                                 </button>
                                 <button id="chatbot-home-toggle" class="border-2 border-white/50 text-white font-bold px-8 py-3.5 rounded-xl hover:bg-white/10 transition text-base">
-                                    💬 Ask AI Chatbot
+                                     Ask AI Chatbot
                                 </button>
                             </div>
                             <div class="flex flex-wrap gap-3 mt-8">
@@ -337,7 +386,7 @@ function loadHomePage(container) {
                                     class="rounded-2xl shadow-2xl w-full object-cover border-4 border-white/20"
                                     style="height: 360px; object-fit: cover;">
                                 <div class="absolute -bottom-4 -left-4 bg-white rounded-2xl shadow-xl p-4 flex items-center gap-3">
-                                    <div class="w-10 h-10 bg-crimson-100 rounded-xl flex items-center justify-center text-xl">🏆</div>
+                                    <div class="w-10 h-10 bg-crimson-100 rounded-xl flex items-center justify-center text-xl font-bold text-crimson-700">#</div>
                                     <div>
                                         <div class="text-xs text-gray-500">Ranked</div>
                                         <div class="font-bold text-gray-900 text-sm">NIRF Top 10 Engineering</div>
@@ -384,7 +433,7 @@ function loadHomePage(container) {
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="card-hover text-center cursor-pointer reveal" data-page="courses">
                         <div class="w-14 h-14 bg-crimson-100 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:bg-crimson-600 transition">
-                            <span class="text-2xl">🎓</span>
+                            <span class="text-2xl font-bold text-crimson-600">B</span>
                         </div>
                         <h3 class="text-lg font-semibold mb-2" style="font-family:'Playfair Display',serif;">Explore Courses</h3>
                         <p class="text-gray-500 text-sm mb-5">B.Tech, M.Tech, MBA, MBBS and more from Amrita's world-class schools.</p>
@@ -392,7 +441,7 @@ function loadHomePage(container) {
                     </div>
                     <div class="card-hover text-center cursor-pointer reveal" style="transition-delay:0.1s;" data-page="fees">
                         <div class="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-5 transition">
-                            <span class="text-2xl">💰</span>
+                            <span class="text-2xl font-bold text-emerald-600">₹</span>
                         </div>
                         <h3 class="text-lg font-semibold mb-2" style="font-family:'Playfair Display',serif;">Fees & Scholarships</h3>
                         <p class="text-gray-500 text-sm mb-5">Transparent INR fee structures and the Vidyamritam Scholarship (up to 100%).</p>
@@ -400,7 +449,7 @@ function loadHomePage(container) {
                     </div>
                     <div class="card-hover text-center cursor-pointer reveal" style="transition-delay:0.2s;" data-page="application">
                         <div class="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-5 transition">
-                            <span class="text-2xl">📋</span>
+                            <span class="text-2xl font-bold text-purple-600">✎</span>
                         </div>
                         <h3 class="text-lg font-semibold mb-2" style="font-family:'Playfair Display',serif;">Apply Online</h3>
                         <p class="text-gray-500 text-sm mb-5">Fill out the admission form and track your application status instantly.</p>
@@ -408,7 +457,7 @@ function loadHomePage(container) {
                     </div>
                     <div class="card-hover text-center cursor-pointer reveal" style="transition-delay:0.3s;" data-page="track">
                         <div class="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-5 transition">
-                            <span class="text-2xl">🔍</span>
+                            <span class="text-2xl font-bold text-orange-600">⌕</span>
                         </div>
                         <h3 class="text-lg font-semibold mb-2" style="font-family:'Playfair Display',serif;">Track Application</h3>
                         <p class="text-gray-500 text-sm mb-5">Already applied? Check your admission status using your email or ID.</p>
@@ -529,10 +578,10 @@ function loadAboutPage(container) {
                 <!-- Key Facts -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
                     ${[
-                        ['🏛️', '1994', 'Established'],
-                        ['🎓', '35,000+', 'Students'],
-                        ['🏫', '14', 'Campuses'],
-                        ['👩‍🏫', '4,000+', 'Faculty Members'],
+                        ['', '1994', 'Established'],
+                        ['', '35,000+', 'Students'],
+                        ['', '14', 'Campuses'],
+                        ['', '4,000+', 'Faculty Members'],
                     ].map(([icon, stat, label]) => `
                         <div class="card text-center border-t-4 border-crimson-600 reveal">
                             <div class="text-3xl mb-2">${icon}</div>
@@ -565,12 +614,12 @@ function loadAboutPage(container) {
                     <h2 class="section-title text-center mb-10">Schools & Departments</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         ${[
-                            ['🔬', 'School of Engineering', 'B.Tech, M.Tech in CSE, ECE, Mechanical, Civil & more', 'bg-crimson-50 border-crimson-200'],
-                            ['🏥', 'Amrita Institute of Medical Sciences', 'MBBS, MD, MS — top-10 hospital in India', 'bg-rose-50 border-rose-200'],
-                            ['💼', 'Amrita School of Business', 'MBA with specialisations in Finance, Marketing, HR, Analytics', 'bg-blue-50 border-blue-200'],
-                            ['🧬', 'School of Biotechnology', 'Bioinformatics, Genetic Engineering, Life Sciences', 'bg-emerald-50 border-emerald-200'],
-                            ['🎨', 'School of Arts & Sciences', 'Physics, Chemistry, Mathematics, Literature', 'bg-purple-50 border-purple-200'],
-                            ['🌐', 'Centre for Cybersecurity', 'AI-driven Cybersecurity, Digital Forensics, Ethical Hacking', 'bg-orange-50 border-orange-200'],
+                            ['', 'School of Engineering', 'B.Tech, M.Tech in CSE, ECE, Mechanical, Civil & more', 'bg-crimson-50 border-crimson-200'],
+                            ['', 'Amrita Institute of Medical Sciences', 'MBBS, MD, MS — top-10 hospital in India', 'bg-rose-50 border-rose-200'],
+                            ['', 'Amrita School of Business', 'MBA with specialisations in Finance, Marketing, HR, Analytics', 'bg-blue-50 border-blue-200'],
+                            ['', 'School of Biotechnology', 'Bioinformatics, Genetic Engineering, Life Sciences', 'bg-emerald-50 border-emerald-200'],
+                            ['', 'School of Arts & Sciences', 'Physics, Chemistry, Mathematics, Literature', 'bg-purple-50 border-purple-200'],
+                            ['', 'Centre for Cybersecurity', 'AI-driven Cybersecurity, Digital Forensics, Ethical Hacking', 'bg-orange-50 border-orange-200'],
                         ].map(([icon, name, desc, bg]) => `
                             <div class="card border ${bg} reveal">
                                 <div class="text-2xl mb-3">${icon}</div>
@@ -586,12 +635,12 @@ function loadAboutPage(container) {
                     <h2 class="section-title text-center mb-10">Why Choose Amrita?</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         ${[
-                            ['🏆', 'Accreditations', 'NAAC A++ rated, NIRF Top 10 Engineering, QS World Rankings.'],
-                            ['🔭', 'Research Excellence', '2000+ research publications/year, collaborative projects with NASA, MIT, and IITs.'],
-                            ['💡', 'Innovation Ecosystem', '25+ research centers, startup incubators, and innovation hubs on campus.'],
-                            ['🌍', 'Global Exposure', 'Study abroad programs, international internships, and global faculty collaborations.'],
-                            ['🏥', 'Integrated Hospital', 'Amrita Hospitals — India\'s top-ranked multi-speciality hospital on campus.'],
-                            ['💛', 'Values-Based Education', 'Founded by Amma — holistic education integrating academics with human values.'],
+                            ['', 'Accreditations', 'NAAC A++ rated, NIRF Top 10 Engineering, QS World Rankings.'],
+                            ['', 'Research Excellence', '2000+ research publications/year, collaborative projects with NASA, MIT, and IITs.'],
+                            ['', 'Innovation Ecosystem', '25+ research centers, startup incubators, and innovation hubs on campus.'],
+                            ['', 'Global Exposure', 'Study abroad programs, international internships, and global faculty collaborations.'],
+                            ['', 'Integrated Hospital', 'Amrita Hospitals — India\'s top-ranked multi-speciality hospital on campus.'],
+                            ['', 'Values-Based Education', 'Founded by Amma — holistic education integrating academics with human values.'],
                         ].map(([icon, title, desc]) => `
                             <div class="flex gap-4 items-start">
                                 <div class="w-12 h-12 bg-crimson-100 rounded-xl flex items-center justify-center text-xl flex-shrink-0">${icon}</div>
@@ -635,22 +684,22 @@ async function loadCoursesPage(container) {
     `;
 
     const courseIcons = {
-        'Computer Science': '💻',
-        'Artificial Intelligence': '🤖',
-        'Cybersecurity': '🔐',
-        'Electronics': '📡',
-        'Mechanical': '⚙️',
-        'Civil': '🏗️',
-        'M.Tech': '🔬',
-        'MBA': '💼',
-        'MBBS': '🏥',
+        'Computer Science': 'CS',
+        'Artificial Intelligence': 'AI',
+        'Cybersecurity': 'CY',
+        'Electronics': 'EC',
+        'Mechanical': 'ME',
+        'Civil': 'CE',
+        'M.Tech': 'MT',
+        'MBA': 'MB',
+        'MBBS': 'MD',
     };
 
     function getCourseIcon(title) {
         for (const [key, icon] of Object.entries(courseIcons)) {
             if (title.includes(key)) return icon;
         }
-        return '🎓';
+        return 'UG';
     }
 
     const courseColors = [
@@ -685,7 +734,7 @@ async function loadCoursesPage(container) {
     } catch (e) {
         document.getElementById('courses-grid').innerHTML = `
             <div class="col-span-3 text-center py-16 text-gray-500">
-                <p class="text-4xl mb-4">⚠️</p>
+                <p class="text-4xl mb-4 font-bold text-amber-500">!</p>
                 <p class="font-medium">Could not load courses. Make sure the Flask backend is running.</p>
             </div>
         `;
@@ -812,7 +861,7 @@ function getDatesContent() {
                     </div>
 
                     <div class="card border-l-4 border-gold-500 reveal" style="transition-delay:0.15s;">
-                        <h2 class="text-xl font-bold mb-6 text-gold-700" style="font-family:'Playfair Display',serif;">🏥 MBBS / NEET Admissions</h2>
+                        <h2 class="text-xl font-bold mb-6 text-gold-700" style="font-family:'Playfair Display',serif;">MBBS / NEET Admissions</h2>
                         <ul class="space-y-4">
                             ${[
                                 ['NEET 2026 Exam', 'May 2026'],
@@ -833,7 +882,7 @@ function getDatesContent() {
                     </div>
 
                     <div class="card border-l-4 border-blue-500 reveal">
-                        <h2 class="text-xl font-bold mb-6 text-blue-700" style="font-family:'Playfair Display',serif;">💼 MBA Admissions 2026</h2>
+                        <h2 class="text-xl font-bold mb-6 text-blue-700" style="font-family:'Playfair Display',serif;">MBA Admissions 2026</h2>
                         <ul class="space-y-4">
                             ${[
                                 ['CAT / MAT / XAT Scores Accepted', 'Ongoing'],
@@ -854,7 +903,7 @@ function getDatesContent() {
                     </div>
 
                     <div class="card border-l-4 border-purple-500 reveal" style="transition-delay:0.15s;">
-                        <h2 class="text-xl font-bold mb-6 text-purple-700" style="font-family:'Playfair Display',serif;">🔬 M.Tech Admissions 2026</h2>
+                        <h2 class="text-xl font-bold mb-6 text-purple-700" style="font-family:'Playfair Display',serif;">M.Tech Admissions 2026</h2>
                         <ul class="space-y-4">
                             ${[
                                 ['GATE 2026 Exam', 'February 2026'],
@@ -876,7 +925,7 @@ function getDatesContent() {
                 </div>
 
                 <div class="mt-12 bg-crimson-50 border border-crimson-200 rounded-2xl p-6 text-center reveal">
-                    <p class="text-crimson-700 font-semibold mb-2">⚠️ Dates are indicative and subject to change</p>
+                    <p class="text-crimson-700 font-semibold mb-2">Note: Dates are indicative and subject to change</p>
                     <p class="text-crimson-600 text-sm">Please verify the exact schedule at <a href="https://www.amrita.edu" target="_blank" class="underline font-semibold">www.amrita.edu</a> or contact the admissions office at <strong>0422-2685000</strong></p>
                 </div>
             </div>
@@ -897,7 +946,7 @@ function loadTrackPage(container) {
             <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 <div class="card shadow-xl">
                     <div class="flex items-center gap-3 mb-6">
-                        <div class="w-12 h-12 bg-crimson-100 rounded-xl flex items-center justify-center text-2xl">🔍</div>
+                        <div class="w-12 h-12 bg-crimson-100 rounded-xl flex items-center justify-center text-2xl font-bold text-crimson-600">?</div>
                         <div>
                             <h2 class="font-bold text-gray-900" style="font-family:'Playfair Display',serif;">Application Status Lookup</h2>
                             <p class="text-gray-500 text-sm">Enter your registered email or application ID</p>
@@ -918,7 +967,7 @@ function loadTrackPage(container) {
                             <input id="track-id" type="number" class="input-field" placeholder="e.g. 1042">
                         </div>
                         <button type="submit" id="track-btn" class="btn-primary w-full text-base py-3">
-                            🔍 Check Status
+                            Check Status
                         </button>
                     </form>
                     <div id="track-result" class="mt-6 hidden"></div>
@@ -940,14 +989,14 @@ function loadTrackPage(container) {
         }
 
         btn.disabled = true;
-        btn.innerHTML = `<span class="inline-block animate-spin mr-2">⟳</span> Checking...`;
+        btn.innerHTML = `<span class="inline-block animate-spin mr-2">&#8635;</span> Checking...`;
 
         try {
             const data = await trackApplication(email ? { email } : { id });
             const statusColors = {
-                Pending:  { bg: 'bg-amber-100', text: 'text-amber-800',  icon: '⏳' },
-                Approved: { bg: 'bg-emerald-100', text: 'text-emerald-800', icon: '✅' },
-                Rejected: { bg: 'bg-red-100',    text: 'text-red-800',    icon: '❌' },
+                Pending:  { bg: 'bg-amber-100', text: 'text-amber-800',  icon: '&#8987;' },
+                Approved: { bg: 'bg-emerald-100', text: 'text-emerald-800', icon: '&#10003;' },
+                Rejected: { bg: 'bg-red-100',    text: 'text-red-800',    icon: '&#10007;' },
             };
             const sc = statusColors[data.status] || statusColors.Pending;
             result.classList.remove('hidden');
@@ -965,8 +1014,8 @@ function loadTrackPage(container) {
                         <div><span class="text-gray-500">Email</span><div class="font-semibold text-gray-900">${data.email}</div></div>
                         <div><span class="text-gray-500">Applied On</span><div class="font-semibold text-gray-900">${data.created_at ? new Date(data.created_at).toLocaleDateString() : '–'}</div></div>
                     </div>
-                    ${data.status === 'Pending' ? `<p class="text-xs text-gray-500 mt-2 bg-gray-50 rounded-lg p-3">⏳ Your application is under review. You will be notified via email once a decision is made.</p>` : ''}
-                    ${data.status === 'Approved' ? `<p class="text-xs text-emerald-700 mt-2 bg-emerald-50 rounded-lg p-3">🎉 Congratulations! Your application has been approved. Please check your email for further instructions.</p>` : ''}
+                    ${data.status === 'Pending' ? `<p class="text-xs text-gray-500 mt-2 bg-gray-50 rounded-lg p-3">Your application is under review. You will be notified via email once a decision is made.</p>` : ''}
+                    ${data.status === 'Approved' ? `<p class="text-xs text-emerald-700 mt-2 bg-emerald-50 rounded-lg p-3">Congratulations! Your application has been approved. Please check your email for further instructions.</p>` : ''}
                     ${data.status === 'Rejected' ? `<p class="text-xs text-red-700 mt-2 bg-red-50 rounded-lg p-3">We regret that your application was not successful. Contact admissions@amrita.edu for feedback.</p>` : ''}
                 </div>
             `;
@@ -974,14 +1023,14 @@ function loadTrackPage(container) {
             result.classList.remove('hidden');
             result.innerHTML = `
                 <div class="border border-red-200 bg-red-50 rounded-xl p-5 text-center">
-                    <p class="text-2xl mb-2">🔍</p>
+                    <p class="text-2xl mb-2 font-bold text-red-400">?</p>
                     <p class="font-semibold text-red-700">No application found</p>
                     <p class="text-xs text-red-500 mt-1">${err.message || 'Please check your email or application ID and try again.'}</p>
                 </div>
             `;
         } finally {
             btn.disabled = false;
-            btn.innerHTML = '🔍 Check Status';
+            btn.innerHTML = 'Check Status';
         }
     });
 }
@@ -999,7 +1048,7 @@ function loadApplicationPage(container) {
             <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
                 <div class="card shadow-xl">
                     <div class="flex items-center gap-3 mb-8 pb-6 border-b">
-                        <div class="w-12 h-12 bg-crimson-100 rounded-xl flex items-center justify-center text-2xl">📋</div>
+                        <div class="w-12 h-12 bg-crimson-100 rounded-xl flex items-center justify-center text-2xl font-bold text-crimson-600">✎</div>
                         <div>
                             <h2 class="font-bold text-gray-900 text-lg" style="font-family:'Playfair Display',serif;">Admission Application Form</h2>
                             <p class="text-gray-500 text-sm">All fields marked * are required</p>
@@ -1099,7 +1148,10 @@ async function loadAdminPage(container) {
                         <option value="Rejected">Rejected</option>
                     </select>
                     <button id="export-csv-btn" class="flex items-center gap-2 bg-amrita-navy hover:bg-gray-900 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition">
-                        ⬇️ Export CSV
+                        Export CSV
+                    </button>
+                    <button id="admin-logout-btn" class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-semibold px-4 py-2.5 rounded-xl transition">
+                        Logout
                     </button>
                 </div>
             </div>
@@ -1126,10 +1178,17 @@ async function loadAdminPage(container) {
             renderFilteredTable();
         });
         document.getElementById('export-csv-btn').addEventListener('click', () => exportCSV(adminAllAdmissions));
+        document.getElementById('admin-logout-btn').addEventListener('click', adminLogout);
     } catch (e) {
+        // If a 401 comes back the user's session expired — re-prompt login
+        if (e.message && e.message.includes('401')) {
+            adminUnlocked = false;
+            promptAdminPin(() => loadAdminPage(container));
+            return;
+        }
         document.getElementById('admin-table-container').innerHTML = `
             <div class="card text-center py-16 text-gray-500">
-                <p class="text-4xl mb-4">⚠️</p>
+                <p class="text-4xl mb-4 font-bold text-amber-500">!</p>
                 <p class="font-medium">Could not load admissions. Make sure the Flask backend is running.</p>
             </div>
         `;
@@ -1189,7 +1248,7 @@ function renderAdminTable(admissions) {
     if (admissions.length === 0) {
         document.getElementById('admin-table-container').innerHTML = `
             <div class="card text-center py-16 text-gray-400">
-                <p class="text-4xl mb-4">📭</p>
+                <p class="text-4xl mb-4">—</p>
                 <p class="font-medium">No applications found.</p>
             </div>
         `;
@@ -1378,7 +1437,7 @@ async function handleFormSubmit(form) {
     }
 
     btn.disabled = true;
-    btn.innerHTML = `<span class="inline-block animate-spin mr-2">⟳</span> Submitting...`;
+    btn.innerHTML = `<span class="inline-block animate-spin mr-2">&#8635;</span> Submitting...`;
 
     try {
         await submitAdmission(data);
@@ -1386,7 +1445,7 @@ async function handleFormSubmit(form) {
         form.reset();
     } catch (error) {
         const msg = error.message || 'Error submitting application.';
-        showToast(msg.includes('already exists') ? '⚠️ An application with this email already exists.' : msg, 'error');
+        showToast(msg.includes('already exists') ? 'An application with this email already exists.' : msg, 'error');
         console.error(error);
     } finally {
         btn.disabled = false;
